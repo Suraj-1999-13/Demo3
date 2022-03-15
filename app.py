@@ -6,17 +6,23 @@ import mediapipe as mp
 import numpy as np
 
 st.title("My first Streamlit app")
+col1, col2 = st.columns(2)
 
-
+class originalVideoProcessor:
+    def recv(self, frame):
+        img=frame.to_ndarray(format="bgr24")
+        img = cv2.flip(img, 1)
+        return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 class VideoProcessor:
-    def __init__(self):
+    def __init__(self):  
       self.mpHands=mp.solutions.hands
       self.hands=self.mpHands.Hands(max_num_hands=1)
       self.mpDraw=mp.solutions.drawing_utils
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
+        img = cv2.flip(img, 1)
         imgRGB=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         result=self.hands.process(imgRGB)
         padd_amount = 15
@@ -39,13 +45,24 @@ class VideoProcessor:
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 
+col1, col2= st.columns(2)
+with col2:
+    ctx = webrtc_streamer(
+        key="example",
+        video_processor_factory=VideoProcessor,
+        rtc_configuration={  # Add this line
+            "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+        }
+    )
+
+with col1:
+    ctx2 = webrtc_streamer(
+        key="example2",
+        video_processor_factory=originalVideoProcessor,
+        rtc_configuration={  # Add this line
+            "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+        }
+    )
 
 
 
-ctx = webrtc_streamer(
-    key="example",
-    video_processor_factory=VideoProcessor,
-    rtc_configuration={  # Add this line
-        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-    }
-)
