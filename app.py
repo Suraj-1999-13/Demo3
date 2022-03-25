@@ -1,5 +1,4 @@
 import streamlit as st
-from asyncio.windows_events import NULL
 from streamlit_webrtc import webrtc_streamer
 import av
 import cv2
