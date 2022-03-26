@@ -5,4 +5,4 @@ numpy==1.19.3
 streamlit-webrtc
 pyarrow
 mediapipe
-tensorflow-cpu==2.6.0
+keras==2.8.0
