@@ -3,11 +3,11 @@ from streamlit_webrtc import webrtc_streamer
 import cv2
 import mediapipe as mp
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from keras.models import load_model
+from keras.preprocessing import image
 import time
 import queue
-from tensorflow.keras.models import model_from_json
+from keras.models import model_from_json
 
 
 
