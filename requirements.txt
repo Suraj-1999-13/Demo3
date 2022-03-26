@@ -1,5 +1,5 @@
 opencv-python
-streamlit
+streamlit==0.68.1
 numpy==1.19.3
 streamlit-webrtc
 pyarrow
