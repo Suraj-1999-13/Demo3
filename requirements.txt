@@ -1,4 +1,4 @@
-opencv-python-headless
+python3-opencv
 streamlit
 pandas
 numpy==1.18.1
