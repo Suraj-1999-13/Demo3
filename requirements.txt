@@ -1,7 +1,7 @@
-opencv-python
+opencv_python_headless==4.5.2.54
 streamlit
 numpy==1.19.3
 streamlit-webrtc
 pyarrow
 mediapipe
-tensorflow-cpu==2.5.0
+tensorflow
