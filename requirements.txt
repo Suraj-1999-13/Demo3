@@ -6,4 +6,4 @@ streamlit-webrtc
 pyarrow
 mediapipe
 keras==2.8.0
-tensorflow-cpu==1.2.0 
+tensorflow-cpu
