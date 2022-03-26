@@ -5,4 +5,4 @@ numpy==1.18.1
 streamlit-webrtc
 pyarrow
 mediapipe
-tensorflow
+tensorflow-cpu==2.6.0
