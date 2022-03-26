@@ -1,7 +1,6 @@
-opencv-python-headless==4.5.3.56
+opencv-python-headless
 streamlit
-numpy==1.19.3
+numpy
 streamlit-webrtc
 mediapipe
-keras==2.8.0
-tensorflow-cpu
+tensorflow
