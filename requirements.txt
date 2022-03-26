@@ -1,4 +1,4 @@
-opencv_python_headless
+opencv-python
 streamlit
 numpy==1.19.3
 streamlit-webrtc
