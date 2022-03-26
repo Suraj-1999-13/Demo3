@@ -1,6 +1,7 @@
 opencv-python-headless
-streamli
-numpy
+streamlit
+pandas
+numpy==1.18.1
 streamlit-webrtc
 pyarrow
 mediapipe
