@@ -1,28 +1,32 @@
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 import cv2
-import av
 import mediapipe as mp
+import av
 import numpy as np
-from keras.models import load_model
-from keras.preprocessing import image
+from collections import Counter
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications import imagenet_utils
 import time
 import queue
-from keras.models import model_from_json
+from tensorflow.keras.models import model_from_json
+import glob
+model=load_model('new_model_bw.h5')
 
+st.set_page_config(page_title="Sign Language Recognition", page_icon = "logo2.png", layout = "centered", initial_sidebar_state = "expanded") 
+st.title("Sign Language Recognition")
 
+if 'images' not in st.session_state:
+    st.session_state.images = glob.glob('images/*.jpg')
+    
+with st.sidebar:
+    st.title("ASL CHARACTERS")
+    rows = [st.columns(3) for _ in range(9)]
+    cols = [column for row in rows for column in row]
+    for col, Image in zip(cols, st.session_state.images):
+        col.image(Image)
 
-json_file = open("model-bw.json", "r")
-model_json = json_file.read()
-json_file.close()
-model = model_from_json(model_json)
-model.load_weights("model-bw.h5") 
-
-
-#model=load_model('model_new2.h5')
-from collections import Counter
-
-st.title("My first Streamlit app")
 class VideoProcessor:
     def __init__(self):
       self.mpHands=mp.solutions.hands
@@ -32,10 +36,11 @@ class VideoProcessor:
 
     def recv(self, frame):
         print("Inside recv function")
+        img = cv2.flip(frame, 1)
         img = frame.to_ndarray(format="bgr24")
         imgRGB=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         result=self.hands.process(imgRGB)
-        padd_amount = 15
+        padd_amount = 35
         if result.multi_hand_landmarks:
             landmarks = [] 
             for handLms in result.multi_hand_landmarks:
@@ -53,17 +58,20 @@ class VideoProcessor:
                 y2  = int(np.max(y_coordinates) + padd_amount)
                 cv2.rectangle(img, (x1, y1), (x2, y2), (155, 0, 255), 3, cv2.LINE_8)
                 roi=img[y1:y2,x1:x2].copy()
+                img_name="1.png"
+                roi = cv2.resize(roi, (224,224))
                 roi= cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-                img_name = "1.png"
-                save_img = cv2.resize(roi, (64,64))
-                # cv2.imwrite(img_name, save_img)
-                # img1 = image.load_img(img_name, target_size=(224,224))
-                # x = image.img_to_array(img1)
-                # x=x/255
-                # x= np.expand_dims(x, axis=0)
-                preds = model.predict(save_img.reshape(1, 64, 64, 1))
-                #preds = model.predict(x)
+                blur = cv2.GaussianBlur(roi,(5,5),2)
+                th3 = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,11,2)
+                ret, save_img = cv2.threshold(th3, 70, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+                cv2.imwrite(img_name, save_img)
+                img1 = image.load_img('1.png', target_size=(224, 224))
+                x = image.img_to_array(img1)   
+                x=x/255
+                x = np.expand_dims(x, axis=0)
+                preds = model.predict(x)
                 preds=np.argmax(preds, axis=1)
+                
                 if preds==0:
                     self.result_queue.put("A")
                     cv2.putText(img,"A",(18,70),cv2.FONT_HERSHEY_PLAIN,3
@@ -173,19 +181,18 @@ class VideoProcessor:
         print("Exiting recv function")
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 
-
-
 ctx = webrtc_streamer(
     key="example",
     video_processor_factory=VideoProcessor,
     rtc_configuration={  
-        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+        "iceServers": [
+            {"urls": ["stun:stun.services.mozilla.com"]},
+            {"urls": ["stun:stun.l.google.com:19302"]}
+        ]
     },
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
 )
-
-
 
 st.write("Present Character")
 character_placeholder = st.empty()
